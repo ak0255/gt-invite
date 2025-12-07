@@ -12,7 +12,7 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "dev_secret_key")
 
-logging.getLogger("werkzeug").setLevel(logging. ERROR)
+logging.getLogger("werkzeug").setLevel(logging.ERROR)
 app.logger.setLevel(logging.INFO)
 
 
@@ -40,7 +40,7 @@ def load_workspaces():
         try:
             workspaces = json.loads(workspaces_json)
             return workspaces
-        except json. JSONDecodeError:
+        except json.JSONDecodeError:
             app.logger.error("Failed to parse WORKSPACES JSON")
     
     # 方式2: 尝试从 WORKSPACE_X_* 环境变量加载
@@ -90,10 +90,10 @@ def get_workspace_by_id(workspace_id):
 
 
 def get_client_ip_address():
-    if "CF-Connecting-IP" in request. headers:
+    if "CF-Connecting-IP" in request.headers:
         return request.headers["CF-Connecting-IP"]
     if "X-Forwarded-For" in request.headers:
-        return request.headers["X-Forwarded-For"]. split(",")[0]. strip()
+        return request.headers["X-Forwarded-For"].split(",")[0].strip()
     return request.remote_addr or "unknown"
 
 
@@ -109,7 +109,7 @@ def build_base_headers(workspace):
 
 def build_invite_headers(workspace):
     headers = build_base_headers(workspace)
-    headers. update(
+    headers.update(
         {
             "content-type": "application/json",
             "origin": "https://chatgpt.com",
@@ -146,7 +146,7 @@ def validate_turnstile(turnstile_response):
             timeout=10,
         )
         result = response.json()
-        return result. get("success", False)
+        return result.get("success", False)
     except Exception:
         return False
 
@@ -174,8 +174,8 @@ def refresh_stats(workspace_id):
     subs_resp.raise_for_status()
     subs_data = subs_resp.json()
 
-    invites_resp = requests. get(invites_url, headers=base_headers, timeout=10)
-    invites_resp. raise_for_status()
+    invites_resp = requests.get(invites_url, headers=base_headers, timeout=10)
+    invites_resp.raise_for_status()
     invites_data = invites_resp.json()
 
     stats = {
@@ -190,7 +190,7 @@ def refresh_stats(workspace_id):
         "billing_period": subs_data.get("billing_period"),
         "billing_currency": subs_data.get("billing_currency"),
         "will_renew": subs_data.get("will_renew"),
-        "is_delinquent": subs_data. get("is_delinquent"),
+        "is_delinquent": subs_data.get("is_delinquent"),
     }
 
     stats_cache[workspace_id] = {
@@ -217,7 +217,7 @@ def workspaces():
     return jsonify({"success": True, "workspaces": workspace_list})
 
 
-@app. route("/send-invites", methods=["POST"])
+@app.route("/send-invites", methods=["POST"])
 def send_invites():
     client_ip = get_client_ip_address()
     app.logger.info(f"Invitation request received from IP: {client_ip}")
@@ -261,7 +261,7 @@ def send_invites():
                 }
             )
         else:
-            app.logger.error(f"Failed to send invitations from IP: {client_ip}. Status code: {resp.status_code}")
+            app.logger.error(f"Failed to send invitations from IP: {client_ip}.Status code: {resp.status_code}")
             return jsonify(
                 {
                     "success": False,
@@ -270,7 +270,7 @@ def send_invites():
                 }
             )
     except Exception as e:
-        app.logger. error(f"Error sending invitations from IP: {client_ip}. Error: {str(e)}")
+        app.logger.error(f"Error sending invitations from IP: {client_ip}.Error: {str(e)}")
         return jsonify({"success": False, "message": f"Error: {str(e)}"})
 
 
@@ -299,12 +299,12 @@ def stats():
                 # 添加更新时间
                 if ws_id in stats_cache and stats_cache[ws_id]["timestamp"]:
                     ts = stats_cache[ws_id]["timestamp"]
-                    dt_utc = datetime.fromtimestamp(ts, tz=timezone. utc)
+                    dt_utc = datetime.fromtimestamp(ts, tz=timezone.utc)
                     cst_tz = timezone(timedelta(hours=8))
-                    dt_cst = dt_utc. astimezone(cst_tz)
+                    dt_cst = dt_utc.astimezone(cst_tz)
                     data["updated_at"] = dt_cst.strftime("%Y-%m-%d %H:%M:%S")
                 
-                all_stats. append(data)
+                all_stats.append(data)
             
             return jsonify({"success": True, "data": all_stats})
         
@@ -333,7 +333,7 @@ def stats():
                 dt_utc = datetime.fromtimestamp(ts, tz=timezone.utc)
                 cst_tz = timezone(timedelta(hours=8))
                 dt_cst = dt_utc.astimezone(cst_tz)
-                updated_at = dt_cst. strftime("%Y-%m-%d %H:%M:%S")
+                updated_at = dt_cst.strftime("%Y-%m-%d %H:%M:%S")
 
             return jsonify(
                 {
@@ -344,11 +344,11 @@ def stats():
                 }
             )
     except Exception as e:
-        app. logger.error(f"Error fetching stats from IP: {client_ip}. Error: {str(e)}")
+        app.logger.error(f"Error fetching stats from IP: {client_ip}.Error: {str(e)}")
         return jsonify({"success": False, "message": f"Error fetching stats: {str(e)}"}), 500
 
 
-@app. errorhandler(404)
+@app.errorhandler(404)
 def not_found(e):
     return jsonify({"error": "Not found"}), 404
 
@@ -356,3 +356,4 @@ def not_found(e):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 39001))
     app.run(debug=False, host="0.0.0.0", port=port)
+
