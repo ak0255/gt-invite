@@ -103,7 +103,7 @@ def build_base_headers(workspace):
         "accept-language": "zh-CN,zh;q=0.9",
         "authorization": workspace["authorization_token"],
         "chatgpt-account-id": workspace["account_id"],
-        "user-agent": "Mozilla/5. 0 (Windows NT 10. 0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
+        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/135.0.0.0 Safari/537.36",
     }
 
 
@@ -356,5 +356,6 @@ def not_found(e):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 39001))
     app.run(debug=False, host="0.0.0.0", port=port)
+
 
 
