@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts. googleapis.com/css2?family=Fira+Code:wght@300.. 700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis. com/css2?family=Fira+Code:wght@300..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <link rel="dns-prefetch" href="https://challenges.cloudflare.com">
@@ -37,7 +37,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 1. 5rem;
+            margin-bottom: 1.5rem;
             font-weight: 700;
         }
         .form-label {
@@ -54,7 +54,7 @@
             box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
         }
         #result {
-            margin-top: 1. 5rem;
+            margin-top: 1.5rem;
             display: none;
             border-radius: 10px;
         }
@@ -77,7 +77,7 @@
             padding: 12px 30px;
             border-radius: 8px;
             font-weight: 600;
-            transition: all 0. 3s;
+            transition: all 0.3s;
         }
         .btn-primary:hover {
             transform: translateY(-2px);
@@ -91,7 +91,7 @@
         .stats-section h3 {
             color: #343a40;
             font-weight: 600;
-            margin-bottom: 1. 5rem;
+            margin-bottom: 1.5rem;
             text-align: center;
         }
         .stats-grid {
@@ -108,7 +108,7 @@
             transition: all 0.3s;
             border-top: 4px solid #667eea;
         }
-        . workspace-card:hover {
+        .workspace-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         }
@@ -118,10 +118,10 @@
         .workspace-card:nth-child(3) {
             border-top-color: #f093fb;
         }
-        . workspace-card:nth-child(4) {
+        .workspace-card:nth-child(4) {
             border-top-color: #4facfe;
         }
-        . workspace-name {
+        .workspace-name {
             font-size: 1.1rem;
             font-weight: 600;
             color: #343a40;
@@ -141,7 +141,7 @@
             color: #6c757d;
             margin-bottom: 0.3rem;
         }
-        . stat-value {
+        .stat-value {
             font-family: 'Fira Code', monospace;
             font-size: 1.3rem;
             font-weight: 600;
@@ -175,10 +175,10 @@
             padding-top: 0.8rem;
             border-top: 1px solid #e9ecef;
         }
-        . stat-extra div {
+        .stat-extra div {
             margin-bottom: 0.3rem;
         }
-        . updated-time {
+        .updated-time {
             font-size: 0.75rem;
             color: #adb5bd;
             text-align: center;
@@ -187,7 +187,7 @@
         .loading-skeleton {
             background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
             background-size: 200% 100%;
-            animation: loading 1. 5s infinite;
+            animation: loading 1.5s infinite;
             border-radius: 4px;
             height: 20px;
             margin-bottom: 10px;
@@ -212,7 +212,7 @@
 
             <div class="mb-3">
                 <label for="emails" class="form-label"><i class="fas fa-envelope"></i> 邮箱地址</label>
-                <textarea class="form-control" id="emails" name="emails" rows="4" required placeholder="请输入邮箱地址... "></textarea>
+                <textarea class="form-control" id="emails" name="emails" rows="4" required placeholder="请输入邮箱地址..."></textarea>
                 <div class="form-text">输入一个或多个邮箱地址，可以每行一个邮箱或者用逗号分隔。</div>
             </div>
 
@@ -264,12 +264,12 @@
                 const response = await fetch('/workspaces');
                 const data = await response.json();
                 
-                if (data.success && data.workspaces. length > 0) {
+                if (data.success && data.workspaces.length > 0) {
                     workspaces = data.workspaces;
                     const select = document.getElementById('workspace');
                     select.innerHTML = '';
                     
-                    data. workspaces.forEach(ws => {
+                    data.workspaces.forEach(ws => {
                         const option = document.createElement('option');
                         option.value = ws.id;
                         option.textContent = ws.name;
@@ -288,7 +288,7 @@
             const submitBtn = document.getElementById('submit-btn');
             const canSubmit = emailsValue.length > 2 && captchaReady;
             if (submitBtn) {
-                submitBtn. disabled = !canSubmit;
+                submitBtn.disabled = !canSubmit;
             }
         }
 
@@ -306,7 +306,7 @@
         function showCaptchaContainer() {
             const container = document.getElementById('captcha-container');
             if (container && container.style.display === 'none') {
-                container.style. display = 'flex';
+                container.style.display = 'flex';
             }
         }
 
@@ -349,7 +349,7 @@
             captchaReady = false;
             if (typeof turnstile !== 'undefined' && turnstileWidgetId !== null) {
                 try {
-                    turnstile. reset(turnstileWidgetId);
+                    turnstile.reset(turnstileWidgetId);
                 } catch (e) {}
             }
             updateSubmitButton();
@@ -367,7 +367,7 @@
                     }
                 }
             }
-            return emails. filter(email => {
+            return emails.filter(email => {
                 const atCount = (email.match(/@/g) || []).length;
                 return atCount === 1;
             });
@@ -378,7 +378,7 @@
             const parts = iso.split('T');
             if (parts.length === 1) return iso;
             const date = parts[0];
-            let time = parts[1]. replace('Z', '');
+            let time = parts[1].replace('Z', '');
             return date + ' ' + time;
         }
 
@@ -418,7 +418,7 @@
                     <div class="stat-extra">
                         ${data.plan_type ?  `<div><strong>计划:</strong> ${data.plan_type}</div>` : ''}
                         ${data.billing_period ? `<div><strong>计费周期:</strong> ${data.billing_period}</div>` : ''}
-                        ${data.active_start && data.active_until ? `<div><strong>有效期:</strong> ${formatIsoDate(data.active_start)} ~ ${formatIsoDate(data. active_until)}</div>` : ''}
+                        ${data.active_start && data.active_until ? `<div><strong>有效期:</strong> ${formatIsoDate(data.active_start)} ~ ${formatIsoDate(data.active_until)}</div>` : ''}
                         ${typeof data.will_renew === 'boolean' ? `<div><strong>自动续费:</strong> ${data.will_renew ? '是' : '否'}</div>` : ''}
                     </div>
                     
@@ -449,7 +449,7 @@
         document.getElementById('emails').addEventListener('input', function() {
             const value = this.value.trim();
 
-            if (value. length > 2) {
+            if (value.length > 2) {
                 showCaptchaContainer();
                 loadTurnstileScript();
             } else {
@@ -461,7 +461,7 @@
         });
 
         document.getElementById('inviteForm').addEventListener('submit', function(e) {
-            e. preventDefault();
+            e.preventDefault();
 
             if (!captchaReady) {
                 const resultElement = document.getElementById('result');
@@ -475,15 +475,15 @@
             const validEmails = validateAndFilterEmails(emailsInput);
             const resultElement = document.getElementById('result');
 
-            if (validEmails. length === 0) {
+            if (validEmails.length === 0) {
                 resultElement.style.display = 'block';
-                resultElement. className = 'alert alert-danger';
-                resultElement.textContent = 'Email addresses are not valid.  Please check and try again.';
+                resultElement.className = 'alert alert-danger';
+                resultElement.textContent = 'Email addresses are not valid. Please check and try again.';
                 return;
             }
 
             document.getElementById('loading').style.display = 'block';
-            resultElement.style. display = 'none';
+            resultElement.style.display = 'none';
 
             const formData = new FormData(this);
             formData.set('emails', validEmails.join(','));
@@ -501,7 +501,7 @@
                 .then(data => {
                     document.getElementById('loading').style.display = 'none';
                     resultElement.style.display = 'block';
-                    resultElement. textContent = data.message;
+                    resultElement.textContent = data.message;
 
                     if (data.success) {
                         resultElement.className = 'alert alert-success';
@@ -534,8 +534,8 @@
                     document.getElementById('loading').style.display = 'none';
 
                     const resultElementInner = document.getElementById('result');
-                    resultElementInner. style.display = 'block';
-                    resultElementInner. className = 'alert alert-danger';
+                    resultElementInner.style.display = 'block';
+                    resultElementInner.className = 'alert alert-danger';
                     resultElementInner.textContent = '发生错误：' + error.message;
 
                     resetTurnstile();
@@ -551,3 +551,4 @@
     </script>
 </body>
 </html>
+
