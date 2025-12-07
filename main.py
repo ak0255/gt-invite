@@ -168,7 +168,7 @@ def refresh_stats(workspace_id):
     account_id = workspace["account_id"]
     
     subs_url = f"https://chatgpt.com/backend-api/subscriptions?account_id={account_id}"
-    invites_url = f"https://chatgpt.com/backend-api/accounts/{account_id}/invites? offset=0&limit=1&query="
+    invites_url = f"https://chatgpt.com/backend-api/accounts/{account_id}/invites?offset=0&limit=1&query="
 
     subs_resp = requests.get(subs_url, headers=base_headers, timeout=10)
     subs_resp.raise_for_status()
@@ -356,4 +356,5 @@ def not_found(e):
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 39001))
     app.run(debug=False, host="0.0.0.0", port=port)
+
 
