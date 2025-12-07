@@ -297,7 +297,7 @@
             turnstileScriptLoaded = true;
 
             const script = document.createElement('script');
-            script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js? onload=onTurnstileLoad&render=explicit';
+            script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit';
             script.async = true;
             script.defer = true;
             document.head.appendChild(script);
@@ -431,7 +431,7 @@
             const grid = document.getElementById('stats-grid');
             grid.innerHTML = '<div class="loading-skeleton"></div><div class="loading-skeleton"></div><div class="loading-skeleton"></div>';
 
-            fetch('/stats? all=1')
+            fetch('/stats?all=1')
                 .then(response => response.json())
                 .then(result => {
                     if (result.success && result.data) {
@@ -551,4 +551,5 @@
     </script>
 </body>
 </html>
+
 
