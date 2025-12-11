@@ -81,6 +81,32 @@ def load_workspaces():
 WORKSPACES = load_workspaces()
 
 
+# 登录功能
+def is_authenticated():
+    return session.get("authenticated", False)
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    # 如果已经登录过，就直接去首页
+    if is_authenticated():
+        return redirect(url_for("index"))
+
+    error = None
+
+    if request.method == "POST":
+        password = request.form.get("password", "")
+        # 用环境变量里的密码校验
+        if ACCESS_PASSWORD and password == ACCESS_PASSWORD:
+            session["authenticated"] = True
+            # 登录成功后跳回首页
+            return redirect(url_for("index"))
+        else:
+            error = "密钥错误，请重试。"
+
+    # 这里渲染一个简单的登录页面
+    return render_template("login.html", error=error)
+
+
 def get_workspace_by_id(workspace_id):
     """根据ID获取工作空间"""
     for ws in WORKSPACES:
@@ -202,14 +228,18 @@ def refresh_stats(workspace_id):
 
 @app.route("/")
 def index():
+    if not is_authenticated():
+        return redirect(url_for("login"))
+
     client_ip = get_client_ip_address()
     app.logger.info(f"Index page accessed by IP: {client_ip}")
     return render_template("index.html", site_key=CF_TURNSTILE_SITE_KEY)
 
-
 @app.route("/workspaces")
 def workspaces():
-    """返回所有工作空间列表"""
+    if not is_authenticated():
+        return redirect(url_for("login"))
+
     client_ip = get_client_ip_address()
     app.logger.info(f"Workspaces list requested from IP: {client_ip}")
     
@@ -219,6 +249,8 @@ def workspaces():
 
 @app.route("/send-invites", methods=["POST"])
 def send_invites():
+    if not is_authenticated():
+        return redirect(url_for("login"))
     client_ip = get_client_ip_address()
     app.logger.info(f"Invitation request received from IP: {client_ip}")
 
@@ -276,6 +308,9 @@ def send_invites():
 
 @app.route("/stats")
 def stats():
+    if not is_authenticated():
+        return redirect(url_for("login"))
+        
     client_ip = get_client_ip_address()
     app.logger.info(f"Stats requested from IP: {client_ip}")
 
