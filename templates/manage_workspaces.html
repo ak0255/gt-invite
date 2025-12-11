@@ -66,18 +66,28 @@
                     <table class="table table-sm align-middle">
                         <thead>
                             <tr>
-                                <th>ID</th>
-                                <th>名称</th>
-                                <th>ACCOUNT_ID</th>
+                            <th>ID</th>
+                            <th>名称</th>
+                            <th>ACCOUNT_ID</th>
+                            <th class="text-end">操作</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for ws in workspaces %}
-                                <tr>
-                                    <td><span class="badge bg-secondary badge-id">{{ ws.id }}</span></td>
-                                    <td>{{ ws.name }}</td>
-                                    <td><code>{{ ws.account_id }}</code></td>
-                                </tr>
+                            <tr>
+                                <td><span class="badge bg-secondary badge-id">{{ ws.id }}</span></td>
+                                <td>{{ ws.name }}</td>
+                                <td><code>{{ ws.account_id }}</code></td>
+                                <td class="text-end">
+                                <form method="post" action="{{ url_for('manage_workspaces') }}" onsubmit="return confirm('确定要删除这个工作空间吗？');" class="d-inline">
+                                    <input type="hidden" name="action" value="delete">
+                                    <input type="hidden" name="workspace_id" value="{{ ws.id }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                    删除
+                                    </button>
+                                </form>
+                                </td>
+                            </tr>
                             {% endfor %}
                         </tbody>
                     </table>

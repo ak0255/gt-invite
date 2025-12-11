@@ -579,6 +579,10 @@
             const percentage = seatsTotal > 0 ? Math.round((seatsInUse / seatsTotal) * 100) : 0;
             const colorClass = getProgressColor(percentage);
 
+            const errorBanner = data.is_valid === false
+                ? `<div class="text-danger small mt-2">统计获取失败：${data.error || '请检查 token 是否有效'}</div>`
+                : '';
+
             return `
                 <div class="workspace-card">
                     <div class="workspace-name">
@@ -608,9 +612,11 @@
                     </div>
                     
                     ${data.updated_at ? `<div class="updated-time">更新: ${data.updated_at}</div>` : ''}
+                    ${errorBanner}
                 </div>
             `;
         }
+
 
         // 更新右侧“当前 Team 统计”卡片
         function updateCurrentStatsFromCache() {
@@ -643,6 +649,26 @@
                 current = allStatsCache[0];
             }
 
+            // 如果当前 workspace 统计无效
+            if (current.is_valid === false) {
+                if (nameElement) {
+                    nameElement.textContent = '当前 Team：' + (current.workspace_name || '未命名工作空间');
+                }
+                if (inUseElement) inUseElement.textContent = '-';
+                if (pendingElement) pendingElement.textContent = '-';
+                if (totalElement) totalElement.textContent = '-';
+
+                if (extraElement) {
+                    const msg = current.error || '该工作空间统计获取失败，请检查 token 是否有效。';
+                    extraElement.innerHTML = `<span class="text-danger small">${msg}</span>`;
+                }
+                if (updatedAtElement) {
+                    updatedAtElement.textContent = '最近更新：--';
+                }
+                return;
+            }
+
+            // 以下是你原来的正常展示逻辑（可以保持不变）
             if (nameElement) {
                 nameElement.textContent = '当前 Team：' + (current.workspace_name || '未命名工作空间');
             }
@@ -690,11 +716,14 @@
             }
         }
 
+
         // 更新总体统计卡片
         function updateOverallStats(allStats) {
-            const totalSeatsInUse = allStats.reduce((sum, item) => sum + (item.seats_in_use ?? 0), 0);
-            const totalSeats = allStats.reduce((sum, item) => sum + (item.seats_entitled ?? 0), 0);
-            const totalPending = allStats.reduce((sum, item) => sum + (item.pending_invites ?? 0), 0);
+            const validStats = allStats.filter(item => item.is_valid !== false);
+
+            const totalSeatsInUse = validStats.reduce((sum, item) => sum + (item.seats_in_use ?? 0), 0);
+            const totalSeats = validStats.reduce((sum, item) => sum + (item.seats_entitled ?? 0), 0);
+            const totalPending = validStats.reduce((sum, item) => sum + (item.pending_invites ?? 0), 0);
 
             const inUseEl = document.getElementById('overall-seats-in-use');
             const pendingEl = document.getElementById('overall-pending-invites');
@@ -704,8 +733,9 @@
             if (inUseEl) inUseEl.textContent = totalSeatsInUse;
             if (pendingEl) pendingEl.textContent = totalPending;
             if (totalEl) totalEl.textContent = totalSeats;
-            if (countEl) countEl.textContent = allStats.length;
+            if (countEl) countEl.textContent = validStats.length;
         }
+
 
         // 加载所有工作空间统计
         function loadAllStats() {

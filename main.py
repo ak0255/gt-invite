@@ -199,29 +199,50 @@ def manage_workspaces():
     global WORKSPACES
 
     if request.method == "POST":
-        name = request.form.get("name", "").strip()
-        authorization_token = request.form.get("authorization_token", "").strip()
-        account_id = request.form.get("account_id", "").strip()
+        action = request.form.get("action", "add")
 
-        if not name or not authorization_token or not account_id:
-            error = "名称、AUTH_TOKEN、ACCOUNT_ID 都不能为空。"
+        # ========== 删除 ==========
+        if action == "delete":
+            workspace_id = request.form.get("workspace_id", "").strip()
+            if not workspace_id:
+                error = "缺少 workspace_id，删除失败。"
+            else:
+                old_len = len(WORKSPACES)
+                WORKSPACES = [
+                    ws for ws in WORKSPACES
+                    if ws.get("id") != workspace_id
+                ]
+                if len(WORKSPACES) == old_len:
+                    error = "未找到对应的工作空间，删除失败。"
+                else:
+                    save_workspaces(WORKSPACES)  # 这里会写回 Upstash
+                    message = f"已删除工作空间：{workspace_id}"
+
+        # ========== 新增 ==========
         else:
-            for ws in WORKSPACES:
-                if ws["account_id"] == account_id:
-                    error = "该 ACCOUNT_ID 已存在。"
-                    break
+            name = request.form.get("name", "").strip()
+            authorization_token = request.form.get("authorization_token", "").strip()
+            account_id = request.form.get("account_id", "").strip()
 
-        if not error:
-            new_id = f"workspace{len(WORKSPACES) + 1}"
-            new_ws = {
-                "id": new_id,
-                "name": name,
-                "authorization_token": authorization_token,
-                "account_id": account_id,
-            }
-            WORKSPACES.append(new_ws)
-            save_workspaces(WORKSPACES)  # ← 核心：写入 Upstash
-            message = f"已成功添加工作空间：{name}"
+            if not name or not authorization_token or not account_id:
+                error = "名称、AUTH_TOKEN、ACCOUNT_ID 都不能为空。"
+            else:
+                for ws in WORKSPACES:
+                    if ws.get("account_id") == account_id:
+                        error = "该 ACCOUNT_ID 已存在。"
+                        break
+
+            if not error:
+                new_id = f"workspace{len(WORKSPACES) + 1}"
+                new_ws = {
+                    "id": new_id,
+                    "name": name,
+                    "authorization_token": authorization_token,
+                    "account_id": account_id,
+                }
+                WORKSPACES.append(new_ws)
+                save_workspaces(WORKSPACES)
+                message = f"已成功添加工作空间：{name}"
 
     return render_template(
         "manage_workspaces.html",
@@ -435,9 +456,10 @@ def send_invites():
 
 @app.route("/stats")
 def stats():
+    # 先做访问密码校验（你之前已经实现的）
     if not is_authenticated():
         return redirect(url_for("login"))
-        
+
     client_ip = get_client_ip_address()
     app.logger.info(f"Stats requested from IP: {client_ip}")
 
@@ -445,69 +467,124 @@ def stats():
     get_all = request.args.get("all") == "1"
     workspace_id = request.args.get("workspace_id", "")
 
-    try:
-        if get_all:
-            # 返回所有工作空间的统计
-            all_stats = []
-            for ws in WORKSPACES:
-                ws_id = ws["id"]
+    # =========① all=1：返回所有工作空间统计（单个失败不拖垮整体）=========
+    if get_all:
+        all_stats = []
+
+        for ws in WORKSPACES:
+            ws_id = ws.get("id")
+            ws_name = ws.get("name")
+
+            try:
+                # 和你原来的逻辑一样：先看缓存是否过期，决定是否 refresh
                 if refresh or stats_expired(ws_id):
                     data = refresh_stats(ws_id)
                 else:
                     data = stats_cache.get(ws_id, {}).get("data")
                     if not data:
                         data = refresh_stats(ws_id)
-                
-                # 添加更新时间
-                if ws_id in stats_cache and stats_cache[ws_id]["timestamp"]:
+
+                # 避免直接修改缓存里的原始 dict，这里拷一份
+                data = dict(data) if isinstance(data, dict) else {}
+
+                # 确保 id 和 name 始终存在，方便前端使用
+                data.setdefault("workspace_id", ws_id)
+                data.setdefault("workspace_name", ws_name)
+
+                # 计算更新时间字符串
+                updated_at = None
+                if ws_id in stats_cache and stats_cache[ws_id].get("timestamp"):
                     ts = stats_cache[ws_id]["timestamp"]
                     dt_utc = datetime.fromtimestamp(ts, tz=timezone.utc)
                     cst_tz = timezone(timedelta(hours=8))
                     dt_cst = dt_utc.astimezone(cst_tz)
-                    data["updated_at"] = dt_cst.strftime("%Y-%m-%d %H:%M:%S")
-                
-                all_stats.append(data)
-            
-            return jsonify({"success": True, "data": all_stats})
-        
+                    updated_at = dt_cst.strftime("%Y-%m-%d %H:%M:%S")
+
+                data["updated_at"] = updated_at
+
+                # 标记当前 workspace 统计是有效的
+                data["is_valid"] = True
+                data["error"] = None
+
+            except Exception as e:
+                # 关键：这里吞掉单个 workspace 的异常，只在该条记录上标记错误
+                app.logger.error(
+                    f"Failed to fetch stats for workspace {ws_id} from IP: {client_ip}. Error: {str(e)}"
+                )
+
+                data = {
+                    "workspace_id": ws_id,
+                    "workspace_name": ws_name,
+                    "seats_in_use": 0,
+                    "seats_entitled": 0,
+                    "pending_invites": 0,
+                    "plan_type": None,
+                    "active_start": None,
+                    "active_until": None,
+                    "billing_period": None,
+                    "billing_currency": None,
+                    "will_renew": None,
+                    "is_delinquent": None,
+                    "updated_at": None,
+                    "is_valid": False,
+                    "error": str(e),
+                }
+
+            all_stats.append(data)
+
+        # 注意：这里无论有多少个 workspace 失败，接口整体仍然 success=True
+        return jsonify({"success": True, "data": all_stats})
+
+    # =========② 单个 workspace 的统计=========
+    # 如果没指定 workspace_id，就默认第一个
+    if not workspace_id and WORKSPACES:
+        workspace_id = WORKSPACES[0]["id"]
+
+    if not get_workspace_by_id(workspace_id):
+        return jsonify({"success": False, "message": "Invalid workspace"}), 400
+
+    try:
+        if refresh:
+            data = refresh_stats(workspace_id)
+            expired = False
         else:
-            # 返回单个工作空间的统计
-            if not workspace_id and WORKSPACES:
-                workspace_id = WORKSPACES[0]["id"]
-            
-            if not get_workspace_by_id(workspace_id):
-                return jsonify({"success": False, "message": "Invalid workspace"}), 400
-            
-            if refresh:
+            expired = stats_expired(workspace_id)
+            if expired or workspace_id not in stats_cache:
                 data = refresh_stats(workspace_id)
                 expired = False
             else:
-                expired = stats_expired(workspace_id)
-                if expired or workspace_id not in stats_cache:
-                    data = refresh_stats(workspace_id)
-                    expired = False
-                else:
-                    data = stats_cache[workspace_id]["data"]
+                data = stats_cache[workspace_id]["data"]
 
-            updated_at = None
-            if workspace_id in stats_cache and stats_cache[workspace_id]["timestamp"]:
-                ts = stats_cache[workspace_id]["timestamp"]
-                dt_utc = datetime.fromtimestamp(ts, tz=timezone.utc)
-                cst_tz = timezone(timedelta(hours=8))
-                dt_cst = dt_utc.astimezone(cst_tz)
-                updated_at = dt_cst.strftime("%Y-%m-%d %H:%M:%S")
+        updated_at = None
+        if workspace_id in stats_cache and stats_cache[workspace_id].get("timestamp"):
+            ts = stats_cache[workspace_id]["timestamp"]
+            dt_utc = datetime.fromtimestamp(ts, tz=timezone.utc)
+            cst_tz = timezone(timedelta(hours=8))
+            dt_cst = dt_utc.astimezone(cst_tz)
+            updated_at = dt_cst.strftime("%Y-%m-%d %H:%M:%S")
 
-            return jsonify(
-                {
-                    "success": True,
-                    "data": data,
-                    "expired": expired,
-                    "updated_at": updated_at,
-                }
-            )
+        return jsonify(
+            {
+                "success": True,
+                "data": data,
+                "expired": expired,
+                "updated_at": updated_at,
+            }
+        )
     except Exception as e:
-        app.logger.error(f"Error fetching stats from IP: {client_ip}.Error: {str(e)}")
-        return jsonify({"success": False, "message": f"Error fetching stats: {str(e)}"}), 500
+        # 单个 workspace 视角下失败，才把 success 设为 False
+        app.logger.error(
+            f"Error fetching stats for workspace {workspace_id} from IP: {client_ip}. Error: {str(e)}"
+        )
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "message": f"Error fetching stats: {str(e)}",
+                }
+            ),
+            500,
+        )
 
 
 @app.errorhandler(404)
