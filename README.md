@@ -23,7 +23,7 @@ CF_TURNSTILE_SITE_KEY=your_turnstile_site_key
 WORKSPACES=[
   {
     "id": "workspace1",
-    "name": "Linux. do 团队",
+    "name": "团队",
     "authorization_token": "Bearer your_token_1",
     "account_id": "account_id_1"
   },
@@ -43,7 +43,7 @@ SECRET_KEY=your_secret_key
 CF_TURNSTILE_SECRET_KEY=your_turnstile_secret
 CF_TURNSTILE_SITE_KEY=your_turnstile_site_key
 
-WORKSPACE_1_NAME=Linux.do 团队
+WORKSPACE_1_NAME=团队
 WORKSPACE_1_AUTHORIZATION_TOKEN=Bearer your_token_1
 WORKSPACE_1_ACCOUNT_ID=account_id_1
 

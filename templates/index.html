@@ -7,8 +7,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300..700&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@300;700&family=Poppins:ital,wght@0,200;0,400;0,600;0,800&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <link rel="dns-prefetch" href="https://challenges.cloudflare.com">
@@ -16,61 +16,75 @@
 
     <style>
         * {
-            font-family: 'Poppins', 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: 'Poppins', 'Noto Sans SC', -apple-system, BlinkMacSystemFont,
+                'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
         }
+
         body {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding-top: 2rem;
             padding-bottom: 2rem;
         }
+
         .main-container {
-            max-width: 900px;
+            max-width: 1100px;
             margin: 0 auto;
             background-color: white;
             padding: 2rem;
             border-radius: 15px;
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
         }
+
         h1 {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 1.5rem;
+            margin-bottom: 0.75rem;
             font-weight: 700;
         }
+
+        .page-subtitle {
+            font-size: 0.95rem;
+            color: #6c757d;
+        }
+
         .form-label {
             font-weight: 500;
             color: #495057;
         }
-        .form-control, .form-select {
+
+        .form-control,
+        .form-select {
             border-radius: 8px;
             border: 2px solid #e9ecef;
             transition: all 0.3s;
         }
-        .form-control:focus, .form-select:focus {
+
+        .form-control:focus,
+        .form-select:focus {
             border-color: #667eea;
             box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
         }
+
         #result {
             margin-top: 1.5rem;
             display: none;
             border-radius: 10px;
         }
+
         .loading {
             display: none;
             text-align: center;
             margin-top: 1rem;
         }
+
         .spinner-border {
             width: 3rem;
             height: 3rem;
         }
-        .disclaimer {
-            opacity: 0.8;
-            line-height: 1.4;
-        }
+
         .btn-primary {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             border: none;
@@ -79,27 +93,87 @@
             font-weight: 600;
             transition: all 0.3s;
         }
+
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
-        
-        /* 统计卡片样式 */
-        .stats-section {
-            margin-top: 3rem;
+
+        .layout-row {
+            margin-top: 1.5rem;
         }
+
+        .layout-divider {
+            margin: 2rem 0 1.25rem;
+            border-top: 1px dashed #dee2e6;
+        }
+
+        /* 顶部统计卡片（参考 Linux.do 风格） */
+        .stats-card {
+            background: #f8f9fa;
+            border-radius: 12px;
+            border: 1px solid #e9ecef;
+            padding: 1.25rem 1.5rem;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.05);
+        }
+
+        .stats-card h5 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: #343a40;
+        }
+
+        .stats-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+
+        .stats-number {
+            font-family: 'Fira Code', monospace;
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #343a40;
+        }
+
+        .stats-extra {
+            font-size: 0.8rem;
+            color: #6c757d;
+            margin-top: 0.75rem;
+        }
+
+        .stats-extra-row {
+            margin-bottom: 0.2rem;
+        }
+
+        .stats-extra-pill {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 999px;
+            background-color: #e9ecef;
+            margin-right: 0.35rem;
+            margin-bottom: 0.25rem;
+        }
+
+        /* 下方每个工作空间统计卡片（沿用你原来的样式） */
+        .stats-section {
+            margin-top: 0.5rem;
+        }
+
         .stats-section h3 {
             color: #343a40;
             font-weight: 600;
             margin-bottom: 1.5rem;
             text-align: center;
         }
+
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
             gap: 1.5rem;
             margin-top: 1.5rem;
         }
+
         .workspace-card {
             background: white;
             border-radius: 12px;
@@ -108,19 +182,24 @@
             transition: all 0.3s;
             border-top: 4px solid #667eea;
         }
+
         .workspace-card:hover {
             transform: translateY(-5px);
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
         }
+
         .workspace-card:nth-child(2) {
             border-top-color: #764ba2;
         }
+
         .workspace-card:nth-child(3) {
             border-top-color: #f093fb;
         }
+
         .workspace-card:nth-child(4) {
             border-top-color: #4facfe;
         }
+
         .workspace-name {
             font-size: 1.1rem;
             font-weight: 600;
@@ -129,24 +208,29 @@
             display: flex;
             align-items: center;
         }
+
         .workspace-name i {
             margin-right: 8px;
             color: #667eea;
         }
+
         .stat-item {
             margin-bottom: 1rem;
         }
+
         .stat-label {
             font-size: 0.85rem;
             color: #6c757d;
             margin-bottom: 0.3rem;
         }
+
         .stat-value {
             font-family: 'Fira Code', monospace;
             font-size: 1.3rem;
             font-weight: 600;
             color: #343a40;
         }
+
         .progress-bar-custom {
             height: 8px;
             border-radius: 10px;
@@ -154,20 +238,25 @@
             overflow: hidden;
             margin-top: 0.5rem;
         }
+
         .progress-fill {
             height: 100%;
             border-radius: 10px;
             transition: width 0.6s ease, background-color 0.3s;
         }
+
         .progress-fill.low {
             background: linear-gradient(90deg, #00b09b, #96c93d);
         }
+
         .progress-fill.medium {
             background: linear-gradient(90deg, #f2994a, #f2c94c);
         }
+
         .progress-fill.high {
             background: linear-gradient(90deg, #eb3349, #f45c43);
         }
+
         .stat-extra {
             font-size: 0.8rem;
             color: #6c757d;
@@ -175,15 +264,18 @@
             padding-top: 0.8rem;
             border-top: 1px solid #e9ecef;
         }
+
         .stat-extra div {
             margin-bottom: 0.3rem;
         }
+
         .updated-time {
             font-size: 0.75rem;
             color: #adb5bd;
             text-align: center;
             margin-top: 0.5rem;
         }
+
         .loading-skeleton {
             background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
             background-size: 200% 100%;
@@ -192,59 +284,143 @@
             height: 20px;
             margin-bottom: 10px;
         }
+
         @keyframes loading {
-            0% { background-position: 200% 0; }
-            100% { background-position: -200% 0; }
+            0% {
+                background-position: 200% 0;
+            }
+            100% {
+                background-position: -200% 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                padding: 1.5rem 1.25rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="main-container">
-        <h1 class="text-center"><i class="fas fa-users"></i> ChatGPT Team 邀请管理</h1>
-
-        <form id="inviteForm">
-            <div class="mb-3">
-                <label for="workspace" class="form-label"><i class="fas fa-building"></i> 选择工作空间</label>
-                <select class="form-select" id="workspace" name="workspace_id" required>
-                    <option value="">加载中...</option>
-                </select>
-            </div>
-
-            <div class="mb-3">
-                <label for="emails" class="form-label"><i class="fas fa-envelope"></i> 邮箱地址</label>
-                <textarea class="form-control" id="emails" name="emails" rows="4" required placeholder="请输入邮箱地址..."></textarea>
-                <div class="form-text">输入一个或多个邮箱地址，可以每行一个邮箱或者用逗号分隔。</div>
-            </div>
-
-            <div class="mb-3 d-flex justify-content-center" id="captcha-container" style="display: none;">
-                <div id="cf-turnstile-wrapper"></div>
-            </div>
-
-            <div class="d-grid">
-                <button type="submit" class="btn btn-primary" id="submit-btn" disabled>
-                    <i class="fas fa-paper-plane"></i> 发送邀请
-                </button>
-            </div>
-        </form>
-
-        <div class="loading" id="loading">
-            <div class="spinner-border text-primary" role="status">
-                <span class="visually-hidden">Loading...</span>
-            </div>
-            <p class="mt-2">正在处理，请稍候...</p>
+        <div class="mb-4 text-center">
+            <h1><i class="fas fa-users"></i> ChatGPT Team 邀请管理</h1>
+            <p class="page-subtitle">
+                选择工作空间，一键批量发送邀请，并实时查看配额使用情况。
+            </p>
         </div>
 
-        <div class="alert mt-3" id="result" role="alert"></div>
+        <div class="row layout-row g-4">
+            <!-- 左侧：邀请表单 -->
+            <div class="col-lg-5">
+                <form id="inviteForm" class="h-100 d-flex flex-column">
+                    <div class="mb-3">
+                        <label for="workspace" class="form-label"><i class="fas fa-building"></i> 选择工作空间</label>
+                        <select class="form-select" id="workspace" name="workspace_id" required>
+                            <option value="">加载中...</option>
+                        </select>
+                    </div>
 
-    </div>
+                    <div class="mb-3">
+                        <label for="emails" class="form-label"><i class="fas fa-envelope"></i> 邮箱地址</label>
+                        <textarea class="form-control" id="emails" name="emails" rows="4" required
+                            placeholder="请输入邮箱地址，一行一个或用逗号分隔。"></textarea>
+                        <div class="form-text">输入一个或多个邮箱地址，可以每行一个邮箱或者用逗号分隔。</div>
+                    </div>
 
-    <!-- 统计展示区域 -->
-    <div class="main-container mt-4">
+                    <div class="mb-3 d-flex justify-content-center" id="captcha-container" style="display: none;">
+                        <div id="cf-turnstile-wrapper"></div>
+                    </div>
+
+                    <div class="mt-auto d-grid">
+                        <button type="submit" class="btn btn-primary" id="submit-btn" disabled>
+                            <i class="fas fa-paper-plane"></i> 发送邀请
+                        </button>
+                    </div>
+
+                    <div class="loading" id="loading">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p class="mt-2">正在处理，请稍候...</p>
+                    </div>
+
+                    <div class="alert mt-3" id="result" role="alert"></div>
+                </form>
+            </div>
+
+            <!-- 右侧：当前 Team + 总体统计 -->
+            <div class="col-lg-7">
+                <!-- 当前 Team 统计 -->
+                <div class="stats-card mb-3" id="stats-card">
+                    <h5 class="text-center">
+                        Team 统计
+                        <span class="d-block small text-muted mt-1" id="stats-team-name">
+                            当前 Team：加载中...
+                        </span>
+                    </h5>
+                    <div class="row text-center">
+                        <div class="col-4 mb-3 mb-md-0">
+                            <div class="stats-label mb-1">上车人数</div>
+                            <div class="stats-number" id="stat-seats-in-use">-</div>
+                        </div>
+                        <div class="col-4 mb-3 mb-md-0">
+                            <div class="stats-label mb-1">已邀请未加入数</div>
+                            <div class="stats-number" id="stat-pending-invites">-</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stats-label mb-1">车位总数</div>
+                            <div class="stats-number" id="stat-seats-total">-</div>
+                        </div>
+                    </div>
+                    <div class="mt-3 stats-extra" id="stats-extra">
+                        <span class="text-muted small">统计加载中...</span>
+                    </div>
+                    <div class="mt-1 stats-extra" id="stats-updated-at">
+                        最近更新：--
+                    </div>
+                </div>
+
+                <!-- 总体统计 -->
+                <div class="stats-card" id="overall-card">
+                    <h5 class="text-center">总体统计</h5>
+                    <div class="row text-center">
+                        <div class="col-4 mb-3 mb-md-0">
+                            <div class="stats-label mb-1">总上车人数</div>
+                            <div class="stats-number" id="overall-seats-in-use">-</div>
+                        </div>
+                        <div class="col-4 mb-3 mb-md-0">
+                            <div class="stats-label mb-1">总未加入邀请</div>
+                            <div class="stats-number" id="overall-pending-invites">-</div>
+                        </div>
+                        <div class="col-4">
+                            <div class="stats-label mb-1">总车位数</div>
+                            <div class="stats-number" id="overall-seats-total">-</div>
+                        </div>
+                    </div>
+                    <div class="mt-3 stats-extra" id="overall-extra">
+                        <span class="stats-extra-pill">
+                            工作空间数量 <span id="overall-workspace-count">0</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <hr class="layout-divider">
+
+        <!-- 所有工作空间详情 -->
         <div class="stats-section">
-            <h3><i class="fas fa-chart-bar"></i> 工作空间统计</h3>
+            <h3><i class="fas fa-chart-bar"></i> 全部工作空间详情</h3>
             <div class="stats-grid" id="stats-grid">
                 <!-- 统计卡片将动态加载 -->
             </div>
+        </div>
+
+        <div class="mt-3 text-muted small">
+            <p class="mb-1">
+                提示：本页面仅用于自助加入 Team，不会持久保存你的邮箱数据。
+            </p>
         </div>
     </div>
 
@@ -253,29 +429,36 @@
         let turnstileScriptLoaded = false;
         let turnstileWidgetId = null;
         let workspaces = [];
+        let allStatsCache = [];
 
         // 加载工作空间列表
         async function loadWorkspaces() {
             try {
                 const response = await fetch('/workspaces');
                 const data = await response.json();
-                
+
                 if (data.success && data.workspaces.length > 0) {
                     workspaces = data.workspaces;
                     const select = document.getElementById('workspace');
+                    if (!select) return;
                     select.innerHTML = '';
-                    
+
                     data.workspaces.forEach(ws => {
                         const option = document.createElement('option');
                         option.value = ws.id;
                         option.textContent = ws.name;
                         select.appendChild(option);
                     });
+
+                    // 工作空间列表加载完后，根据缓存的统计更新右侧卡片
+                    updateCurrentStatsFromCache();
                 }
             } catch (error) {
                 console.error('Failed to load workspaces:', error);
                 const select = document.getElementById('workspace');
-                select.innerHTML = '<option value="">加载失败</option>';
+                if (select) {
+                    select.innerHTML = '<option value="">加载失败</option>';
+                }
             }
         }
 
@@ -296,7 +479,8 @@
             script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onTurnstileLoad&render=explicit';
             script.async = true;
             script.defer = true;
-            document.head.appendChild(script);
+            const head = document.getElementsByTagName('head')[0];
+            head.appendChild(script);
         }
 
         function showCaptchaContainer() {
@@ -328,7 +512,7 @@
             updateSubmitButton();
         }
 
-        window.onTurnstileLoad = function() {
+        window.onTurnstileLoad = function () {
             if (turnstileWidgetId !== null) return;
             const wrapper = document.getElementById('cf-turnstile-wrapper');
             if (!wrapper) return;
@@ -346,7 +530,7 @@
             if (typeof turnstile !== 'undefined' && turnstileWidgetId !== null) {
                 try {
                     turnstile.reset(turnstileWidgetId);
-                } catch (e) {}
+                } catch (e) { }
             }
             updateSubmitButton();
         }
@@ -385,7 +569,7 @@
         }
 
         function renderWorkspaceCard(data) {
-            const seatsInUse = data.seats_in_use ??  0;
+            const seatsInUse = data.seats_in_use ?? 0;
             const seatsTotal = data.seats_entitled ?? 0;
             const percentage = seatsTotal > 0 ? Math.round((seatsInUse / seatsTotal) * 100) : 0;
             const colorClass = getProgressColor(percentage);
@@ -408,11 +592,11 @@
 
                     <div class="stat-item">
                         <div class="stat-label"><i class="fas fa-envelope"></i> 待处理邀请</div>
-                        <div class="stat-value">${data.pending_invites ??  0}</div>
+                        <div class="stat-value">${data.pending_invites ?? 0}</div>
                     </div>
 
                     <div class="stat-extra">
-                        ${data.plan_type ?  `<div><strong>计划:</strong> ${data.plan_type}</div>` : ''}
+                        ${data.plan_type ? `<div><strong>计划:</strong> ${data.plan_type}</div>` : ''}
                         ${data.billing_period ? `<div><strong>计费周期:</strong> ${data.billing_period}</div>` : ''}
                         ${data.active_start && data.active_until ? `<div><strong>有效期:</strong> ${formatIsoDate(data.active_start)} ~ ${formatIsoDate(data.active_until)}</div>` : ''}
                         ${typeof data.will_renew === 'boolean' ? `<div><strong>自动续费:</strong> ${data.will_renew ? '是' : '否'}</div>` : ''}
@@ -423,26 +607,136 @@
             `;
         }
 
+        // 更新右侧“当前 Team 统计”卡片
+        function updateCurrentStatsFromCache() {
+            const nameElement = document.getElementById('stats-team-name');
+            const inUseElement = document.getElementById('stat-seats-in-use');
+            const pendingElement = document.getElementById('stat-pending-invites');
+            const totalElement = document.getElementById('stat-seats-total');
+            const extraElement = document.getElementById('stats-extra');
+            const updatedAtElement = document.getElementById('stats-updated-at');
+
+            if (!allStatsCache || allStatsCache.length === 0) {
+                if (nameElement) nameElement.textContent = '当前 Team：暂无数据';
+                if (inUseElement) inUseElement.textContent = '-';
+                if (pendingElement) pendingElement.textContent = '-';
+                if (totalElement) totalElement.textContent = '-';
+                if (extraElement) extraElement.innerHTML = '<span class="text-muted small">等待统计加载...</span>';
+                if (updatedAtElement) updatedAtElement.textContent = '最近更新：--';
+                return;
+            }
+
+            const select = document.getElementById('workspace');
+            let workspaceId = select ? select.value : '';
+
+            if (!workspaceId && workspaces && workspaces.length > 0) {
+                workspaceId = workspaces[0].id;
+            }
+
+            let current = allStatsCache.find(item => item.workspace_id === workspaceId);
+            if (!current) {
+                current = allStatsCache[0];
+            }
+
+            if (nameElement) {
+                nameElement.textContent = '当前 Team：' + (current.workspace_name || '未命名工作空间');
+            }
+            if (inUseElement) {
+                inUseElement.textContent = (current.seats_in_use ?? 0);
+            }
+            if (pendingElement) {
+                pendingElement.textContent = (current.pending_invites ?? 0);
+            }
+            if (totalElement) {
+                totalElement.textContent = (current.seats_entitled ?? 0);
+            }
+
+            if (extraElement) {
+                const rows = [];
+
+                const metaRow = [];
+                if (current.plan_type) metaRow.push(`套餐 ${current.plan_type}`);
+                if (current.billing_period) metaRow.push(`周期 ${current.billing_period}`);
+                if (current.billing_currency) metaRow.push(current.billing_currency);
+                if (metaRow.length) rows.push(metaRow);
+
+                const periodRow = [];
+                if (current.active_start) periodRow.push(`有效期 ${formatIsoDate(current.active_start)}`);
+                if (current.active_start && current.active_until) periodRow.push('→');
+                if (current.active_until) periodRow.push(formatIsoDate(current.active_until));
+                if (periodRow.length) rows.push(periodRow);
+
+                const renewRow = [];
+                if (typeof current.will_renew === 'boolean') renewRow.push(`续费 ${current.will_renew ? '是' : '否'}`);
+                if (typeof current.is_delinquent === 'boolean') renewRow.push(`欠费 ${current.is_delinquent ? '是' : '否'}`);
+                if (renewRow.length) rows.push(renewRow);
+
+                if (rows.length === 0) {
+                    extraElement.innerHTML = '<span class="text-muted small">暂无套餐 / 计费信息</span>';
+                } else {
+                    extraElement.innerHTML = rows
+                        .map(row => `<div class="stats-extra-row">${row.map(text => `<span class="stats-extra-pill">${text}</span>`).join('')}</div>`)
+                        .join('');
+                }
+            }
+
+            if (updatedAtElement) {
+                updatedAtElement.textContent = '最近更新：' + (current.updated_at || '--');
+            }
+        }
+
+        // 更新总体统计卡片
+        function updateOverallStats(allStats) {
+            const totalSeatsInUse = allStats.reduce((sum, item) => sum + (item.seats_in_use ?? 0), 0);
+            const totalSeats = allStats.reduce((sum, item) => sum + (item.seats_entitled ?? 0), 0);
+            const totalPending = allStats.reduce((sum, item) => sum + (item.pending_invites ?? 0), 0);
+
+            const inUseEl = document.getElementById('overall-seats-in-use');
+            const pendingEl = document.getElementById('overall-pending-invites');
+            const totalEl = document.getElementById('overall-seats-total');
+            const countEl = document.getElementById('overall-workspace-count');
+
+            if (inUseEl) inUseEl.textContent = totalSeatsInUse;
+            if (pendingEl) pendingEl.textContent = totalPending;
+            if (totalEl) totalEl.textContent = totalSeats;
+            if (countEl) countEl.textContent = allStats.length;
+        }
+
+        // 加载所有工作空间统计
         function loadAllStats() {
             const grid = document.getElementById('stats-grid');
-            grid.innerHTML = '<div class="loading-skeleton"></div><div class="loading-skeleton"></div><div class="loading-skeleton"></div>';
+            if (grid) {
+                grid.innerHTML = '<div class="loading-skeleton"></div><div class="loading-skeleton"></div><div class="loading-skeleton"></div>';
+            }
 
             fetch('/stats?all=1')
                 .then(response => response.json())
                 .then(result => {
                     if (result.success && result.data) {
-                        grid.innerHTML = result.data.map(ws => renderWorkspaceCard(ws)).join('');
+                        allStatsCache = result.data;
+
+                        if (grid) {
+                            grid.innerHTML = result.data.map(ws => renderWorkspaceCard(ws)).join('');
+                        }
+
+                        updateOverallStats(allStatsCache);
+                        updateCurrentStatsFromCache();
                     } else {
-                        grid.innerHTML = '<div class="alert alert-warning">统计加载失败</div>';
+                        if (grid) {
+                            grid.innerHTML = '<div class="alert alert-warning">统计加载失败</div>';
+                        }
                     }
                 })
                 .catch(error => {
                     console.error('Failed to load stats:', error);
-                    grid.innerHTML = '<div class="alert alert-danger">统计加载失败</div>';
+                    if (grid) {
+                        grid.innerHTML = '<div class="alert alert-danger">统计加载失败</div>';
+                    }
                 });
         }
 
-        document.getElementById('emails').addEventListener('input', function() {
+        // 文本输入时，懒加载 Turnstile
+        document.getElementById('emails').addEventListener('input', function () {
             const value = this.value.trim();
 
             if (value.length > 2) {
@@ -456,7 +750,13 @@
             updateSubmitButton();
         });
 
-        document.getElementById('inviteForm').addEventListener('submit', function(e) {
+        // 切换工作空间时，刷新右侧当前 Team 统计
+        document.getElementById('workspace').addEventListener('change', function () {
+            updateCurrentStatsFromCache();
+        });
+
+        // 提交邀请表单
+        document.getElementById('inviteForm').addEventListener('submit', function (e) {
             e.preventDefault();
 
             if (!captchaReady) {
@@ -504,7 +804,7 @@
                         document.getElementById('emails').value = '';
                         hideCaptchaContainer();
                         resetTurnstile();
-                        
+
                         // 刷新统计
                         setTimeout(() => loadAllStats(), 1000);
                     } else {
@@ -541,12 +841,9 @@
         // 页面加载时初始化
         loadWorkspaces();
         loadAllStats();
-        
-        // 每60秒自动刷新统计
+
+        // 每 60 秒自动刷新统计
         setInterval(loadAllStats, 60000);
     </script>
 </body>
 </html>
-
-
-
