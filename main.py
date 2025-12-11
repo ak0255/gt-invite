@@ -12,6 +12,8 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "dev_secret_key")
 
+ACCESS_PASSWORD = os.getenv("ACCESS_PASSWORD", "")
+
 logging.getLogger("werkzeug").setLevel(logging.ERROR)
 app.logger.setLevel(logging.INFO)
 
