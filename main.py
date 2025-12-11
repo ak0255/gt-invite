@@ -13,6 +13,9 @@ app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "dev_secret_key")
 
 ACCESS_PASSWORD = os.getenv("ACCESS_PASSWORD", "")
+UPSTASH_REDIS_REST_URL = os.getenv("UPSTASH_REDIS_REST_URL")
+UPSTASH_REDIS_REST_TOKEN = os.getenv("UPSTASH_REDIS_REST_TOKEN")
+WORKSPACES_KEY = os.getenv("WORKSPACES_KEY", "workspaces")
 
 logging.getLogger("werkzeug").setLevel(logging.ERROR)
 app.logger.setLevel(logging.INFO)
@@ -31,8 +34,62 @@ CF_TURNSTILE_SITE_KEY = os.getenv("CF_TURNSTILE_SITE_KEY")
 STATS_CACHE_TTL = 60
 stats_cache = {}  # {workspace_id: {"timestamp": 0, "data": None}}
 
+def load_workspaces_from_upstash():
+    """从 Upstash Redis 读取工作空间配置列表"""
+    if not UPSTASH_REDIS_REST_URL or not UPSTASH_REDIS_REST_TOKEN:
+        return []
 
-def load_workspaces():
+    try:
+        resp = requests.get(
+            f"{UPSTASH_REDIS_REST_URL}/get/{WORKSPACES_KEY}",
+            headers={"Authorization": f"Bearer {UPSTASH_REDIS_REST_TOKEN}"},
+            timeout=5,
+        )
+        if resp.status_code != 200:
+            app.logger.error(
+                f"Upstash GET failed: {resp.status_code} {resp.text}"
+            )
+            return []
+
+        data = resp.json()
+        # Upstash REST API 的返回格式一般是 {"result": "xxx"} 
+        value = data.get("result")
+        if not value:
+            return []
+
+        workspaces = json.loads(value)
+        if isinstance(workspaces, list):
+            return workspaces
+        else:
+            app.logger.error("Upstash workspaces value is not a list")
+            return []
+    except Exception as e:
+        app.logger.error(f"Failed to load workspaces from Upstash: {e}")
+        return []
+
+
+def save_workspaces_to_upstash(workspaces):
+    """把工作空间列表写入 Upstash Redis"""
+    if not UPSTASH_REDIS_REST_URL or not UPSTASH_REDIS_REST_TOKEN:
+        app.logger.warning("Upstash is not configured, skip saving workspaces")
+        return
+
+    try:
+        payload = json.dumps(workspaces, ensure_ascii=False)
+        resp = requests.post(
+            f"{UPSTASH_REDIS_REST_URL}/set/{WORKSPACES_KEY}",
+            headers={"Authorization": f"Bearer {UPSTASH_REDIS_REST_TOKEN}"},
+            data=payload.encode("utf-8"),
+            timeout=5,
+        )
+        if resp.status_code != 200:
+            app.logger.error(
+                f"Upstash SET failed: {resp.status_code} {resp.text}"
+            )
+    except Exception as e:
+        app.logger.error(f"Failed to save workspaces to Upstash: {e}")
+
+def load_workspaces_from_env():
     """加载工作空间配置，支持多种格式"""
     workspaces = []
     
@@ -78,10 +135,34 @@ def load_workspaces():
     
     return workspaces
 
+def load_workspaces():
+    """总入口：优先从 Upstash 读，没有再用环境变量"""
+    # 1. 先试试 Upstash
+    from_upstash = load_workspaces_from_upstash()
+    if from_upstash:
+        app.logger.info(f"Loaded {len(from_upstash)} workspaces from Upstash")
+        return from_upstash
+
+    # 2. 如果 Upstash 里还没配置，就走老的环境变量逻辑
+    from_env = load_workspaces_from_env()
+    if from_env:
+        app.logger.info(f"Loaded {len(from_env)} workspaces from env")
+        # 顺便写回 Upstash，后面就都从 Upstash 管理
+        save_workspaces_to_upstash(from_env)
+        return from_env
+
+    app.logger.warning("No workspaces configured")
+    return []
+
 
 # 全局加载工作空间配置
 WORKSPACES = load_workspaces()
 
+def save_workspaces(workspaces):
+    """更新内存中的 WORKSPACES 并同步到 Upstash"""
+    global WORKSPACES
+    WORKSPACES = workspaces
+    save_workspaces_to_upstash(workspaces)
 
 # 登录功能
 def is_authenticated():
@@ -107,6 +188,49 @@ def login():
 
     # 这里渲染一个简单的登录页面
     return render_template("login.html", error=error)
+
+@app.route("/admin/workspaces", methods=["GET", "POST"])
+def manage_workspaces():
+    if not is_authenticated():
+        return redirect(url_for("login"))
+
+    error = None
+    message = None
+    global WORKSPACES
+
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        authorization_token = request.form.get("authorization_token", "").strip()
+        account_id = request.form.get("account_id", "").strip()
+
+        if not name or not authorization_token or not account_id:
+            error = "名称、AUTH_TOKEN、ACCOUNT_ID 都不能为空。"
+        else:
+            for ws in WORKSPACES:
+                if ws["account_id"] == account_id:
+                    error = "该 ACCOUNT_ID 已存在。"
+                    break
+
+        if not error:
+            new_id = f"workspace{len(WORKSPACES) + 1}"
+            new_ws = {
+                "id": new_id,
+                "name": name,
+                "authorization_token": authorization_token,
+                "account_id": account_id,
+            }
+            WORKSPACES.append(new_ws)
+            save_workspaces(WORKSPACES)  # ← 核心：写入 Upstash
+            message = f"已成功添加工作空间：{name}"
+
+    return render_template(
+        "manage_workspaces.html",
+        workspaces=WORKSPACES,
+        error=error,
+        message=message,
+    )
+
+
 
 
 def get_workspace_by_id(workspace_id):
