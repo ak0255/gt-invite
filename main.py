@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import requests
 import os
 from dotenv import load_dotenv
@@ -251,6 +251,7 @@ def workspaces():
 def send_invites():
     if not is_authenticated():
         return redirect(url_for("login"))
+
     client_ip = get_client_ip_address()
     app.logger.info(f"Invitation request received from IP: {client_ip}")
 
