@@ -1,6 +1,6 @@
 # ChatGPT Team 邀请管理系统
 
-支持多工作空间管理的 ChatGPT Team 邀请系统。
+支持多工作空间管理的 ChatGPT Team 邀请系统（工作空间使用 UUID 主键，更稳定）。
 
 ## 功能特性
 
@@ -22,7 +22,7 @@ CF_TURNSTILE_SITE_KEY=your_turnstile_site_key
 
 WORKSPACES=[
   {
-    "id": "workspace1",
+    "id": "<uuid>",
     "name": "团队",
     "authorization_token": "Bearer your_token_1",
     "account_id": "account_id_1"

@@ -5,11 +5,20 @@ from dotenv import load_dotenv
 import logging
 import time
 import json
+import uuid
 from datetime import datetime, timedelta, timezone
+from jinja2 import ChoiceLoader, FileSystemLoader
 
 load_dotenv()
 
-app = Flask(__name__)
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# 兼容：模板既可以放在 templates/ 目录，也可以直接放在项目根目录
+app = Flask(__name__, template_folder=os.path.join(BASE_DIR, "templates"))
+app.jinja_loader = ChoiceLoader([
+    FileSystemLoader(os.path.join(BASE_DIR, "templates")),
+    FileSystemLoader(BASE_DIR),
+])
 app.secret_key = os.getenv("SECRET_KEY", "dev_secret_key")
 
 ACCESS_PASSWORD = os.getenv("ACCESS_PASSWORD", "")
@@ -155,8 +164,67 @@ def load_workspaces():
     return []
 
 
+def _migrate_workspaces_to_uuid(workspaces):
+    """将旧的 workspaceN / default 等形式迁移为 UUID 主键，并确保唯一性。
+
+    迁移策略：
+    - 如果缺少 id，或 id 重复，则生成新的 UUID。
+    - 如果 id 不是 UUID 格式（例如 workspace1/default），也会迁移为 UUID。
+    - 保留 name / authorization_token / account_id 字段。
+    """
+    if not isinstance(workspaces, list):
+        return workspaces, False
+
+    changed = False
+    seen_ids = set()
+    migrated = []
+
+    def _is_uuid_like(s: str) -> bool:
+        try:
+            uuid.UUID(str(s))
+            return True
+        except Exception:
+            return False
+
+    for ws in workspaces:
+        if not isinstance(ws, dict):
+            changed = True
+            continue
+
+        ws = dict(ws)
+        old_id = ws.get("id")
+
+        need_new_id = False
+        if not old_id:
+            need_new_id = True
+        elif old_id in seen_ids:
+            need_new_id = True
+        elif not _is_uuid_like(old_id):
+            # 旧格式一律迁移
+            need_new_id = True
+
+        if need_new_id:
+            ws["id"] = uuid.uuid4().hex
+            changed = True
+
+        # 极低概率碰撞，但还是保险一下
+        while ws["id"] in seen_ids:
+            ws["id"] = uuid.uuid4().hex
+            changed = True
+
+        seen_ids.add(ws["id"])
+        migrated.append(ws)
+
+    return migrated, changed
+
+
 # 全局加载工作空间配置
 WORKSPACES = load_workspaces()
+
+# 启动时：自动迁移旧 ID 并回写，防止出现“workspace4 重复 / 删除连坐”
+WORKSPACES, _migrated = _migrate_workspaces_to_uuid(WORKSPACES)
+if _migrated:
+    save_workspaces_to_upstash(WORKSPACES)
 
 def save_workspaces(workspaces):
     """更新内存中的 WORKSPACES 并同步到 Upstash"""
@@ -188,6 +256,12 @@ def login():
 
     # 这里渲染一个简单的登录页面
     return render_template("login.html", error=error)
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
 
 @app.route("/admin/workspaces", methods=["GET", "POST"])
 def manage_workspaces():
@@ -233,7 +307,11 @@ def manage_workspaces():
                         break
 
             if not error:
-                new_id = f"workspace{len(WORKSPACES) + 1}"
+                # 使用更稳定的 UUID 主键，避免并发/删除导致的 ID 重复
+                new_id = uuid.uuid4().hex
+                existing_ids = {ws.get("id") for ws in WORKSPACES if isinstance(ws, dict)}
+                while new_id in existing_ids:
+                    new_id = uuid.uuid4().hex
                 new_ws = {
                     "id": new_id,
                     "name": name,
